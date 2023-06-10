@@ -3,14 +3,17 @@ import './style.css'
 import { useGL } from './use-gl'
 import { useCanvasSize } from './use-canvas-size'
 import { useProgram } from './use-program'
+
 export type ShaderProps = {
-	fragmentShader: string
+	glsl: string
 	uniform: string
 }
 
 export interface Props {
-	fragmentShader?: string
+	glsl?: string
 	uniforms?: string
+	mouse?: boolean
+	time?: boolean
 	pixelRatio?: number
 	style?: CSSProperties
 	webglAttributes?: WebGLContextAttributes
@@ -41,6 +44,9 @@ const DEFAULT_ATTRIBUTES: WebGLContextAttributes = {
 }
 
 export function Shader(props?: Props): JSX.Element {
+	const { glsl, uniforms } = props ?? {}
+	const fragmentShader = glsl
+	const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 	// const { pixelRatio = devicePixelRatio, webglAttributes, programs: initialPrograms, style, scripts = [] } = props ?? {}
 
 	// const { width, height } = useCanvasSize({ gl, canvasRef, pixelRatio })
@@ -79,7 +85,7 @@ export function Shader(props?: Props): JSX.Element {
 	// 	}
 	// }, [usedProgram, glConfig, ready, processor])
 
-	const vertexShaderSource = `#version 300 es
+	const vertexShader = `#version 300 es
   // an attribute is an input (in) to a vertex shader.
   // It will receive data from a buffer
   in vec4 a_position;
@@ -93,20 +99,23 @@ export function Shader(props?: Props): JSX.Element {
   }
 `
 
-	const fragmentShaderSource = `#version 300 es
-  precision highp float;
+	// 	const fragmentShaderSource = `#version 300 es
+	//   precision highp float;
 
-	uniform vec2 resolution;
-	uniform vec2 mouse;
- 
-  // we need to declare an output for the fragment shader
-  out vec4 outColor;
- 
-  void main() {
-		vec2 position = ( gl_FragCoord.xy / resolution.xy );
-    outColor = vec4(position, 0, 1);
-  }
-`
+	// 	uniform vec2 resolution;
+	// 	uniform vec2 mouse;
+	// 	uniform float time;
+
+	//   // we need to declare an output for the fragment shader
+	//   out vec4 outColor;
+
+	//   void main() {
+	// 		vec2 position = ( gl_FragCoord.xy / resolution.xy );
+	// 		float dist = length(position - vec2(.5));
+	// 		float t = .5 + (sin(time*3.) * .5);
+	//     outColor = vec4(dist, dist, t, 1);
+	//   }
+	// `
 
 	const canvasRef: RefObject<HTMLCanvasElement> = React.useRef<HTMLCanvasElement>(null)
 	// const gl = useGL({ canvasRef })
@@ -147,17 +156,6 @@ export function Shader(props?: Props): JSX.Element {
 		[gl]
 	)
 
-	// const CanvasSize = (canvas: HTMLCanvasElement) => {
-	// 	const width = canvas.clientWidth | 0
-	// 	const height = canvas.clientHeight | 0
-	// 	if (canvas.width !== width || canvas.height !== height) {
-	// 		canvas.width = width
-	// 		canvas.height = height
-	// 		return true
-	// 	}
-	// 	return false
-	// }
-
 	useEffect((): void => {
 		if (canvasRef.current) {
 			const width = canvasRef.current.clientWidth | 0
@@ -169,36 +167,38 @@ export function Shader(props?: Props): JSX.Element {
 		}
 	}, [canvasRef])
 
+	const program = useRef<WebGLProgram | null>()
+
 	const createProgram = useCallback(
 		({ vertex, fragment }: ProgramConfig): ProgramResult | undefined => {
 			if (!gl) {
 				return
 			}
-			const program = gl.createProgram()
-			if (!program) {
+			program.current = gl.createProgram()
+			if (!program.current) {
 				throw new Error(`Unable to create program.`)
 			}
 
 			const vertexShader = createShader(vertex, gl.VERTEX_SHADER)!
 			const fragmentShader = createShader(fragment, gl.FRAGMENT_SHADER)!
-			gl.attachShader(program, vertexShader)
-			gl.attachShader(program, fragmentShader)
-			gl.linkProgram(program)
+			gl.attachShader(program.current, vertexShader)
+			gl.attachShader(program.current, fragmentShader)
+			gl.linkProgram(program.current)
 
-			if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-				gl.detachShader(program, vertexShader)
-				gl.detachShader(program, fragmentShader)
+			if (!gl.getProgramParameter(program.current, gl.LINK_STATUS)) {
+				gl.detachShader(program.current, vertexShader)
+				gl.detachShader(program.current, fragmentShader)
 				gl.deleteShader(vertexShader)
 				gl.deleteShader(fragmentShader)
-				throw new Error('Unable to initialize the shader program:\n' + gl.getProgramInfoLog(program))
+				throw new Error('Unable to initialize the shader program:\n' + gl.getProgramInfoLog(program.current))
 			}
 
 			const triangleArray = gl.createVertexArray()
 			gl.bindVertexArray(triangleArray)
 
-			const resolutionUniformLocation = gl.getUniformLocation(program, 'resolution')
-			const mouseUniformLocation = gl.getUniformLocation(program, 'mouse')
-			const positionLocation = gl.getAttribLocation(program, 'a_position')
+			const resolutionUniformLocation = gl.getUniformLocation(program.current, 'resolution')
+			const mouseUniformLocation = gl.getUniformLocation(program.current, 'mouse')
+			const positionLocation = gl.getAttribLocation(program.current, 'a_position')
 
 			if (positionLocation >= 0) {
 				var vao = gl.createVertexArray()
@@ -232,28 +232,55 @@ export function Shader(props?: Props): JSX.Element {
 				gl.clearColor(0, 0, 0, 1)
 				gl.clear(gl.COLOR_BUFFER_BIT)
 
-				gl.useProgram(program)
+				gl.useProgram(program.current)
 				gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height)
+				gl.uniform2f(mouseUniformLocation, mousePos.x, mousePos.y)
 				gl.bindVertexArray(vao)
 				gl.drawArrays(gl.TRIANGLES, 0, 6)
-				// gl.drawArrays(gl.TRIANGLES, 0, 3)
 			}
 		},
-		[createShader, gl]
+		[createShader, gl, mousePos]
 	)
 
-	useEffect(() => {
-		if (!gl) {
+	const Render = (time: number) => {
+		if (!gl || !program.current) {
 			return
 		}
-		const result = createProgram({ vertex: vertexShaderSource, fragment: fragmentShaderSource })
-	}, [gl])
+		time *= 0.001 // convert to seconds
+		const mouseUniformLocation = gl.getUniformLocation(program.current, 'mouse')
+		const timeUniformLocation = gl.getUniformLocation(program.current, 'time')
+		gl.uniform2f(mouseUniformLocation, mousePos.x, mousePos.y)
+		gl.uniform1f(timeUniformLocation, time)
+		gl.drawArrays(gl.TRIANGLES, 0, 6)
+		requestAnimationFrame(Render)
+	}
+	requestAnimationFrame(Render)
+
+	useEffect(() => {
+		if (!gl || !vertexShader || !fragmentShader) {
+			return
+		}
+		createProgram({ vertex: vertexShader, fragment: fragmentShader })
+	}, [gl, vertexShader, fragmentShader, createProgram])
+
+	const updateMousePosition = useCallback(
+		(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+			const canvas = e.target as HTMLCanvasElement
+			// console.log(e.nativeEvent.offsetX / canvas.offsetWidth, 1 - e.nativeEvent.offsetY / canvas.offsetHeight)
+			setMousePos({
+				x: e.nativeEvent.offsetX / canvas.offsetWidth,
+				y: 1 - e.nativeEvent.offsetY / canvas.offsetHeight,
+			})
+		},
+		[mousePos]
+	)
 
 	return (
 		<canvas
 			ref={canvasRef}
 			// width={width}
 			// height={height}
+			onMouseMove={(e) => updateMousePosition(e)}
 			style={{
 				width: '100%',
 				height: '100%',
