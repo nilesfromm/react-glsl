@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,"__esModule",{value:true});var e=require("react/jsx-runtime");var t=function(t){var r=t.title,a=t.className,o=a===void 0?"":a;var n=function(){alert(new Date().toLocaleDateString())};return e.jsx.call(void 0,"button",{className:"my-awesome-component ".concat(o),onClick:n,children:r})};exports.Button=t;//# sourceMappingURL=index.js.map
