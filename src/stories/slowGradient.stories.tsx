@@ -1,8 +1,8 @@
-import React from 'react'
-import { Shader } from './index'
+import React from "react";
+import { ShaderCanvas } from "../shader/index";
 export default {
-	title: 'Shader',
-}
+  title: "Gradients",
+};
 
 const glsl = `#version 300 es
   precision highp float;
@@ -18,12 +18,12 @@ const glsl = `#version 300 es
 		vec2 position = ( gl_FragCoord.xy / resolution.xy );
 		float dist = length(position - vec2(.5));
 		float t = .5 + (sin(time*3.) * .5);
-    outColor = vec4(dist, dist, t, 1);
+    outColor = vec4(dist, dist/1.8, t, 1);
   }
-`
+`;
 
-export const ShaderPrimary = () => (
-	<div style={{ width: '400px', height: '400px' }}>
-		<Shader glsl={glsl} mouse time />
-	</div>
-)
+export const SlowShader = () => (
+  <div style={{ width: "100%", height: "100%" }}>
+    <ShaderCanvas glsl={glsl} mouse time />
+  </div>
+);
