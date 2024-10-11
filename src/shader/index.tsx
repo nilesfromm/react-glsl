@@ -8,10 +8,6 @@ import React, {
   useCallback,
 } from "react";
 
-// import { useGL } from "./use-gl";
-// import { useCanvasSize } from "./use-canvas-size";
-// import { useProgram } from "./use-program";
-
 export interface ShaderCanvasProps {
   glsl: string;
   uniforms?: string;
@@ -226,7 +222,6 @@ export function ShaderCanvas(props: ShaderCanvasProps): JSX.Element {
   const updateMousePosition = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
       const canvas = e.target as HTMLCanvasElement;
-      // console.log(e.nativeEvent.offsetX / canvas.offsetWidth, 1 - e.nativeEvent.offsetY / canvas.offsetHeight)
       setMousePos({
         x: e.nativeEvent.offsetX / canvas.offsetWidth,
         y: 1 - e.nativeEvent.offsetY / canvas.offsetHeight,
