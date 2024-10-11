@@ -4,7 +4,7 @@ A minimal wrapper for GLSL shaders in React.
 
 Basic usage:
 
-```
+```ts
 import ShaderCanvas from react-glsl;
 
 const fragment = `#version 300 es
