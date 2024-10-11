@@ -8,26 +8,26 @@ import React, {
   useCallback,
 } from "react";
 
-export interface ShaderCanvasProps {
+export type ShaderCanvasProps = {
   glsl: string;
-  uniforms?: string;
+  // uniforms?: string;
   mouse?: boolean;
   time?: boolean;
   pixelRatio?: number;
   style?: CSSProperties;
   webglAttributes?: WebGLContextAttributes;
-}
+};
 
 interface Shaders {
   readonly vertex: string;
   readonly fragment: string;
 }
 
-export interface ShaderResult {
+export type ShaderResult = {
   id: number;
   program?: WebGLProgram;
   ready?: boolean;
-}
+};
 
 const DEFAULT_ATTRIBUTES: WebGLContextAttributes = {
   alpha: true,
@@ -41,8 +41,8 @@ const DEFAULT_ATTRIBUTES: WebGLContextAttributes = {
   stencil: false,
 };
 
-export function ShaderCanvas(props: ShaderCanvasProps): JSX.Element {
-  const { glsl, uniforms, style } = props;
+export const ShaderCanvas = (props: ShaderCanvasProps): JSX.Element => {
+  const { glsl, style } = props;
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const fragmentShader = glsl;
   const vertexShader = `#version 300 es
@@ -243,4 +243,4 @@ export function ShaderCanvas(props: ShaderCanvasProps): JSX.Element {
       }}
     ></canvas>
   );
-}
+};

@@ -1,5 +1,6 @@
 import React from "react";
-import { ShaderCanvas } from "../shader/index";
+// import { ShaderCanvas } from "../shader/index";
+import * as sc from "../../dist/index";
 export default {
   title: "Gradients",
 };
@@ -24,9 +25,8 @@ const glsl = `#version 300 es
     outColor = outWave;
   }
 `;
+console.log(sc);
 
 export const FastShader = () => (
-  <div style={{ width: "100%", height: "100%" }}>
-    <ShaderCanvas glsl={glsl} mouse time uniforms="" />
-  </div>
+  <div style={{ width: "100%", height: "100%" }}></div>
 );
