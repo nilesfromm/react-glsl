@@ -5,7 +5,7 @@ A minimal wrapper for GLSL shaders in React.
 Basic usage:
 
 ```ts
-import { ShaderCanvas } from "react-glsl";
+import { ShaderCanvas } from 'react-glsl';
 
 const fragment: string = `#version 300 es
 precision highp float;
@@ -23,7 +23,7 @@ void main() {
 `;
 
 export const Shader = () => (
-  <div style={{ width: "100%", height: "100%" }}>
+  <div style={{ width: '100%', height: '100%' }}>
     <ShaderCanvas glsl={fragment} mouse time />
   </div>
 );
@@ -32,7 +32,7 @@ export const Shader = () => (
 \*\*\*Note: to use react-glsl in a NextJs project, make sure to set client mode:
 
 ```ts
-"use client";
+'use client';
 ```
 
 Pass in fragment shader as a string with optional props:
@@ -48,12 +48,12 @@ export type ShaderCanvasProps = {
 };
 ```
 
-glsl - fragment shader string
-mouse - enable mouse postion uniform (vec2 from 0-1 scaled to canvas size)
-time - enable time uniform (float)
-pixelRatio - set custom pixelRatio
-style - css for canvas element
-webglAttributes - add additional webgl customization
+- glsl - fragment shader string
+- mouse - enable mouse postion uniform (vec2 from 0-1 scaled to canvas size)
+- time - enable time uniform (float)
+- pixelRatio - set custom pixelRatio
+- style - css for canvas element
+- webglAttributes - add additional webgl customization
 
 ---
 
