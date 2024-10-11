@@ -7,7 +7,7 @@ Basic usage:
 ```ts
 import { ShaderCanvas } from 'react-glsl';
 
-const fragment: string = `#version 300 es
+const fragment = `#version 300 es
 precision highp float;
 
 uniform vec2 resolution;
