@@ -45,8 +45,8 @@ type uniform = {
 
 type ShaderCanvasProps = {
   glsl: string;
-  mouse?: boolean;
-  time?: boolean;
+  enableMouse?: boolean;
+  enableTime?: boolean;
   uniforms?: uniform[];
   pixelRatio?: number;
   style?: CSSProperties;
@@ -56,8 +56,8 @@ type ShaderCanvasProps = {
 ```
 
 - glsl - fragment shader string
-- mouse - enable mouse postion uniform (vec2 from 0-1 scaled to canvas size)
-- time - enable time uniform (float)
+- enableMouse - [default: true] enable mouse postion uniform (vec2 from 0-1 scaled to canvas size)
+- enableTime - [default: true] enable time uniform (float)
 - uniforms - array of uniform objects, each with a name and value (float|vec2|vec3|vec4)
 - pixelRatio - set custom pixelRatio
 - style - css for canvas element

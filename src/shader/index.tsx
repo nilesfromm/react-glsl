@@ -10,14 +10,13 @@ import React, {
 
 type uniform = {
   name: string;
-  // type: "float" | "vec2" | "vec3" | "vec4";
   value: number | number[];
 };
 
 export type ShaderCanvasProps = {
   glsl: string;
-  mouse?: boolean;
-  time?: boolean;
+  enableMouse?: boolean;
+  enableTime?: boolean;
   uniforms?: uniform[];
   pixelRatio?: number;
   style?: CSSProperties;
@@ -52,8 +51,8 @@ export const ShaderCanvas = ({
   glsl,
   uniforms = [],
   className = "",
-  mouse = true,
-  time = true,
+  enableMouse = true,
+  enableTime = true,
   pixelRatio = 1,
   style = {},
   webglAttributes = DEFAULT_ATTRIBUTES,
@@ -227,7 +226,7 @@ export const ShaderCanvas = ({
   );
 
   const Render = (time: number) => {
-    if (!gl || !program.current || !time) {
+    if (!gl || !program.current || !enableTime) {
       return;
     }
 
@@ -246,21 +245,6 @@ export const ShaderCanvas = ({
       } else if (uniform.value.length === 4) {
         gl.uniform4fv(location, uniform.value as number[]);
       }
-
-      // switch (uniform.type) {
-      //   case "float":
-      //     gl.uniform1f(location, uniform.value as number);
-      //     break;
-      //   case "vec2":
-      //     gl.uniform2fv(location, uniform.value as number[]);
-      //     break;
-      //   case "vec3":
-      //     gl.uniform3fv(location, uniform.value as number[]);
-      //     break;
-      //   case "vec4":
-      //     gl.uniform4fv(location, uniform.value as number[]);
-      //     break;
-      // }
     });
 
     time *= 0.001; // convert to seconds
@@ -296,7 +280,7 @@ export const ShaderCanvas = ({
   const updateMousePosition = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
       const canvas = e.target as HTMLCanvasElement;
-      mouse &&
+      enableMouse &&
         setMousePos({
           x: e.nativeEvent.offsetX / canvas.offsetWidth,
           y: 1 - e.nativeEvent.offsetY / canvas.offsetHeight,
@@ -309,6 +293,7 @@ export const ShaderCanvas = ({
     <canvas
       ref={canvasRef}
       onMouseMove={(e) => updateMousePosition(e)}
+      className={className}
       style={{
         width: "100%",
         height: "100%",

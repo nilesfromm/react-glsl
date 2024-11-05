@@ -56,8 +56,8 @@ export const UniformTestShader = () => {
             value: [slider1, slider2, slider3, 1.0],
           },
         ]}
-        mouse
-        time
+        enableMouse
+        enableTime
       />
       <input
         type="range"
