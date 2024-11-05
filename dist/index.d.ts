@@ -1,11 +1,17 @@
 import { CSSProperties } from 'react';
 
+type uniform = {
+    name: string;
+    value: number | number[];
+};
 type ShaderCanvasProps = {
     glsl: string;
-    mouse?: boolean;
-    time?: boolean;
+    enableMouse?: boolean;
+    enableTime?: boolean;
+    uniforms?: uniform[];
     pixelRatio?: number;
     style?: CSSProperties;
+    className?: string;
     webglAttributes?: WebGLContextAttributes;
 };
 type ShaderResult = {
@@ -13,6 +19,6 @@ type ShaderResult = {
     program?: WebGLProgram;
     ready?: boolean;
 };
-declare const ShaderCanvas: (props: ShaderCanvasProps) => JSX.Element;
+declare const ShaderCanvas: ({ glsl, uniforms, className, enableMouse, enableTime, pixelRatio, style, webglAttributes, }: ShaderCanvasProps) => JSX.Element;
 
 export { ShaderCanvas, ShaderCanvasProps, ShaderResult };
