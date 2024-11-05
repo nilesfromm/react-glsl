@@ -2,7 +2,6 @@ import { CSSProperties } from 'react';
 
 type ShaderCanvasProps = {
     glsl: string;
-    uniforms?: string;
     mouse?: boolean;
     time?: boolean;
     pixelRatio?: number;

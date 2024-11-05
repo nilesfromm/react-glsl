@@ -1,6 +1,6 @@
 {
   "name": "react-glsl",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "homepage": "https://github.com/nilesfromm/react-glsl",
   "description": "Minimal GLSL wrapper for React",
   "author": "nilesfromm",

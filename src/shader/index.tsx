@@ -8,13 +8,20 @@ import React, {
   useCallback,
 } from "react";
 
+type uniform = {
+  name: string;
+  // type: "float" | "vec2" | "vec3" | "vec4";
+  value: number | number[];
+};
+
 export type ShaderCanvasProps = {
   glsl: string;
-  // uniforms?: string;
   mouse?: boolean;
   time?: boolean;
+  uniforms?: uniform[];
   pixelRatio?: number;
   style?: CSSProperties;
+  className?: string;
   webglAttributes?: WebGLContextAttributes;
 };
 
@@ -41,9 +48,17 @@ const DEFAULT_ATTRIBUTES: WebGLContextAttributes = {
   stencil: false,
 };
 
-export const ShaderCanvas = (props: ShaderCanvasProps): JSX.Element => {
-  const { glsl, style } = props;
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+export const ShaderCanvas = ({
+  glsl,
+  uniforms = [],
+  className = "",
+  mouse = true,
+  time = true,
+  pixelRatio = 1,
+  style = {},
+  webglAttributes = DEFAULT_ATTRIBUTES,
+}: ShaderCanvasProps): JSX.Element => {
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const fragmentShader = glsl;
   const vertexShader = `#version 300 es
     in vec4 a_position;
@@ -61,7 +76,7 @@ export const ShaderCanvas = (props: ShaderCanvasProps): JSX.Element => {
     if (canvas) {
       setGL(
         canvas.getContext?.("webgl2", {
-          ...DEFAULT_ATTRIBUTES,
+          ...webglAttributes,
         })
       );
       const width = canvas.clientWidth | 0;
@@ -126,6 +141,32 @@ export const ShaderCanvas = (props: ShaderCanvasProps): JSX.Element => {
       const triangleArray = gl.createVertexArray();
       gl.bindVertexArray(triangleArray);
 
+      // uniforms.forEach((uniform) => {
+      //   const location = gl.getUniformLocation(program.current, uniform.name);
+      //   if (!location) {
+      //     throw new Error(`Unable to get uniform location for ${uniform.name}`);
+      //   }
+      //   switch (uniform.type) {
+      //     case "float":
+      //       gl.uniform1f(location, uniform.value as number);
+      //       break;
+      //     case "vec2":
+      //       gl.uniform2fv(location, uniform.value as number[]);
+      //       break;
+      //     case "vec3":
+      //       gl.uniform3fv(location, uniform.value as number[]);
+      //       break;
+      //     case "vec4":
+      //       gl.uniform4fv(location, uniform.value as number[]);
+      //       break;
+      //   }
+      // });
+
+      // const sliderUniformLocation = gl.getUniformLocation(
+      //   program.current,
+      //   "slider"
+      // );
+
       const resolutionUniformLocation = gl.getUniformLocation(
         program.current,
         "resolution"
@@ -186,9 +227,42 @@ export const ShaderCanvas = (props: ShaderCanvasProps): JSX.Element => {
   );
 
   const Render = (time: number) => {
-    if (!gl || !program.current) {
+    if (!gl || !program.current || !time) {
       return;
     }
+
+    uniforms.forEach((uniform) => {
+      if (!program.current) return;
+      const location = gl.getUniformLocation(program.current, uniform.name);
+      if (!location) {
+        throw new Error(`Unable to get uniform location for ${uniform.name}`);
+      }
+      if (typeof uniform.value === "number") {
+        gl.uniform1f(location, uniform.value as number);
+      } else if (uniform.value.length === 2) {
+        gl.uniform2fv(location, uniform.value as number[]);
+      } else if (uniform.value.length === 3) {
+        gl.uniform3fv(location, uniform.value as number[]);
+      } else if (uniform.value.length === 4) {
+        gl.uniform4fv(location, uniform.value as number[]);
+      }
+
+      // switch (uniform.type) {
+      //   case "float":
+      //     gl.uniform1f(location, uniform.value as number);
+      //     break;
+      //   case "vec2":
+      //     gl.uniform2fv(location, uniform.value as number[]);
+      //     break;
+      //   case "vec3":
+      //     gl.uniform3fv(location, uniform.value as number[]);
+      //     break;
+      //   case "vec4":
+      //     gl.uniform4fv(location, uniform.value as number[]);
+      //     break;
+      // }
+    });
+
     time *= 0.001; // convert to seconds
     const mouseUniformLocation = gl.getUniformLocation(
       program.current,
@@ -222,10 +296,11 @@ export const ShaderCanvas = (props: ShaderCanvasProps): JSX.Element => {
   const updateMousePosition = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
       const canvas = e.target as HTMLCanvasElement;
-      setMousePos({
-        x: e.nativeEvent.offsetX / canvas.offsetWidth,
-        y: 1 - e.nativeEvent.offsetY / canvas.offsetHeight,
-      });
+      mouse &&
+        setMousePos({
+          x: e.nativeEvent.offsetX / canvas.offsetWidth,
+          y: 1 - e.nativeEvent.offsetY / canvas.offsetHeight,
+        });
     },
     [mousePos]
   );
@@ -233,8 +308,6 @@ export const ShaderCanvas = (props: ShaderCanvasProps): JSX.Element => {
   return (
     <canvas
       ref={canvasRef}
-      // width={width}
-      // height={height}
       onMouseMove={(e) => updateMousePosition(e)}
       style={{
         width: "100%",
