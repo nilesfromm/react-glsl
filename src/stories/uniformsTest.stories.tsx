@@ -23,7 +23,8 @@ const glsl = `#version 300 es
     // float dist = length(vec2(position.x,position.y) - vec2(.5));
     float wave = sin(dist * 64. + time * 16.);
     vec4 outWave = mix(vec4(0., 0., 0., 1.0), vec4(smoothstep(0.,0.9,wave),wave*0.8,smoothstep(0.2,0.4,wave),1.), smoothstep(0.,.5,dist));
-    outColor = inColor * outWave;
+    // outColor = inColor * outWave;
+    outColor = vec4(vec3(0.1,0.4,0.9),position.x);
   }
 `;
 
@@ -41,6 +42,7 @@ export const UniformTestShader = () => {
         alignItems: "center",
         justifyContent: "center",
         gap: "1rem",
+        backgroundColor: "coral",
       }}
     >
       <ShaderCanvas

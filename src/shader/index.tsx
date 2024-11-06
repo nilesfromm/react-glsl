@@ -42,7 +42,7 @@ const DEFAULT_ATTRIBUTES: WebGLContextAttributes = {
   desynchronized: true,
   failIfMajorPerformanceCaveat: undefined,
   powerPreference: "default",
-  premultipliedAlpha: true,
+  premultipliedAlpha: false,
   preserveDrawingBuffer: false,
   stencil: false,
 };
